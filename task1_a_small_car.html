@@ -1,0 +1,52 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <title>Small_car</title>
+    <script type="text/javascript" src="three.js"></script>
+    <script type="text/javascript">
+        function init(){
+            // render&scene
+            var renderer = new THREE.WebGLRenderer({
+                canvas:document.getElementById('mainCanvas')
+            });
+            renderer.setClearColor(0x000000);
+            var scene = new THREE.Scene();
+            // camera
+            var camera = new THREE.OrthographicCamera(-20,20,20,-20,1,50);
+            camera.position.set(10,10,10);
+            camera.lookAt(new THREE.Vector3(0,0,0));
+            scene.add(camera);
+            //light:
+            //var light = new THREE.DirectionalLight(0xffffff);
+            //light.position.set(20,20,20);
+            //scene.add(light);
+            //car
+            var material = new THREE.MeshBasicMaterial({
+                color:0x555555
+            });
+            drawCar(scene,material,20);
+            renderer.render(scene,camera);
+        }
+        function drawCar(scene,material,length){
+            var carBase = new THREE.Mesh(new THREE.CubeGeometry(length,length/2,length/2,5,5,5),material);
+            var carWheel1 = new THREE.Mesh(new THREE.TorusGeometry(length/12,length/32,16,100,Math.PI*2),material);
+            var carWheel2 = new THREE.Mesh(new THREE.TorusGeometry(length/12,length/32,16,100,Math.PI*2),material);
+            var carWheel3 = new THREE.Mesh(new THREE.TorusGeometry(length/12,length/32,16,100,Math.PI*2),material);
+            var carWheel4 = new THREE.Mesh(new THREE.TorusGeometry(length/12,length/32,16,100,Math.PI*2),material);
+            carWheel1.position.set(-length/4,-length/4,length/4);
+            carWheel2.position.set(length/4,-length/4,-length/4);
+            carWheel3.position.set(-length/4,-length/4,-length/4);
+            carWheel4.position.set(length/4,-length/4,length/4);
+            scene.add(carBase);
+            scene.add(carWheel1);
+            scene.add(carWheel2);
+            scene.add(carWheel3);
+            scene.add(carWheel4);
+        }
+    </script>
+</head>
+<body onload="init()">
+    <canvas id="mainCanvas" width="400px" height="300px"></canvas>
+</body>
+</html>
