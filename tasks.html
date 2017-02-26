@@ -11,22 +11,47 @@
                 canvas:document.getElementById('mainCanvas')
             });
             renderer.setClearColor(0x000000);
+            renderer.shadowMapSoft = true;
+            renderer.shadowMapEnabled = true;
             var scene = new THREE.Scene();
             // camera
             var camera = new THREE.OrthographicCamera(-20,20,20,-20,1,50);
-            camera.position.set(10,10,10);
+            camera.position.set(15,7,15);
             camera.lookAt(new THREE.Vector3(0,0,0));
             scene.add(camera);
             //light:
-            var light = new THREE.PointLight(0xffffff,1,100);
-            light.position.set(20,20,20);
+            /*
+            var light = new THREE.DirectionalLight(0xffffff,0.6);
+            light.position.set(-20,20,20);
+            light.castShadow=true;
+
+            var light = new THREE.SpotLight(0xffffff,1,100,Math.PI/2,2);
+            light.position.set(-20,30,20);
+            //light.target = Vector3(0,0,0);
+            */
+            var light = new THREE.PointLight(0xffffff,1,100,2);
+            light.position.set(-20,40,20);
+            light.castShadow = true;
             scene.add(light);
+
+            var ambientlight = new THREE.AmbientLight(0xffffff,0.2);
+            scene.add(ambientlight);
+            //plane:
+            var plane = new THREE.Mesh(new THREE.PlaneGeometry(50,50),
+                new THREE.MeshLambertMaterial({
+                    color:0x7fff00
+                }));
+            plane.rotation.x= -Math.PI/2;
+            plane.position.y= -(5+20/12+20/32);
+            plane.receiveShadow=true;
+            scene.add(plane);
             //car
             var material = new THREE.MeshLambertMaterial({
                 color:0xffffff
             });
             drawCar(scene,material,20);
             renderer.render(scene,camera);
+
         }
         function drawCar(scene,material,length){
             var carBase = new THREE.Mesh(new THREE.CubeGeometry(length,length/2,length/2,5,5,5),material);
@@ -38,6 +63,16 @@
             carWheel2.position.set(length/4,-length/4,-length/4);
             carWheel3.position.set(-length/4,-length/4,-length/4);
             carWheel4.position.set(length/4,-length/4,length/4);
+            carBase.castShadow=true;
+            carWheel1.castShadow=true;
+            carWheel2.castShadow=true;
+            carWheel3.castShadow=true;
+            carWheel4.castShadow=true;
+            carBase.receiveShadow=true;
+            carWheel1.receiveShadow=true;
+            carWheel2.receiveShadow=true;
+            carWheel3.receiveShadow=true;
+            carWheel4.receiveShadow=true;
             scene.add(carBase);
             scene.add(carWheel1);
             scene.add(carWheel2);
