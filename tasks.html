@@ -18,12 +18,12 @@
             camera.lookAt(new THREE.Vector3(0,0,0));
             scene.add(camera);
             //light:
-            //var light = new THREE.DirectionalLight(0xffffff);
-            //light.position.set(20,20,20);
-            //scene.add(light);
+            var light = new THREE.PointLight(0xffffff,1,100);
+            light.position.set(20,20,20);
+            scene.add(light);
             //car
-            var material = new THREE.MeshBasicMaterial({
-                color:0x555555
+            var material = new THREE.MeshLambertMaterial({
+                color:0xffffff
             });
             drawCar(scene,material,20);
             renderer.render(scene,camera);
