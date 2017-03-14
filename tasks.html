@@ -34,7 +34,7 @@
             light.castShadow = true;
             scene.add(light);
 
-            var ambientlight = new THREE.AmbientLight(0xffffff,0.2);
+            var ambientlight = new THREE.AmbientLight(0xffffff,0.3);
             scene.add(ambientlight);
             //plane:
             var plane = new THREE.Mesh(new THREE.PlaneGeometry(50,50),
@@ -46,19 +46,25 @@
             plane.receiveShadow=true;
             scene.add(plane);
             //car
-            var material = new THREE.MeshLambertMaterial({
-                color:0xffffff
+            var materialBase = new THREE.MeshLambertMaterial({
+                map: THREE.ImageUtils.loadTexture("1.jpg",{},function(){
+                    renderer.render(scene,camera);
+                }),
+                overdraw: true
             });
-            drawCar(scene,material,20);
+            var materialWheel = new THREE.MeshLambertMaterial({
+                color: 0x000000
+            });
+            drawCar(scene,materialBase,materialWheel,20);
             renderer.render(scene,camera);
 
         }
-        function drawCar(scene,material,length){
-            var carBase = new THREE.Mesh(new THREE.CubeGeometry(length,length/2,length/2,5,5,5),material);
-            var carWheel1 = new THREE.Mesh(new THREE.TorusGeometry(length/12,length/32,16,100,Math.PI*2),material);
-            var carWheel2 = new THREE.Mesh(new THREE.TorusGeometry(length/12,length/32,16,100,Math.PI*2),material);
-            var carWheel3 = new THREE.Mesh(new THREE.TorusGeometry(length/12,length/32,16,100,Math.PI*2),material);
-            var carWheel4 = new THREE.Mesh(new THREE.TorusGeometry(length/12,length/32,16,100,Math.PI*2),material);
+        function drawCar(scene,materialBase,materialWheel,length){
+            var carBase = new THREE.Mesh(new THREE.CubeGeometry(length,length/2,length/2,5,5,5),materialBase);
+            var carWheel1 = new THREE.Mesh(new THREE.TorusGeometry(length/12,length/32,16,100,Math.PI*2),materialWheel);
+            var carWheel2 = new THREE.Mesh(new THREE.TorusGeometry(length/12,length/32,16,100,Math.PI*2),materialWheel);
+            var carWheel3 = new THREE.Mesh(new THREE.TorusGeometry(length/12,length/32,16,100,Math.PI*2),materialWheel);
+            var carWheel4 = new THREE.Mesh(new THREE.TorusGeometry(length/12,length/32,16,100,Math.PI*2),materialWheel);
             carWheel1.position.set(-length/4,-length/4,length/4);
             carWheel2.position.set(length/4,-length/4,-length/4);
             carWheel3.position.set(-length/4,-length/4,-length/4);
