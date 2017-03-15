@@ -4,21 +4,36 @@
     <meta charset="UTF-8">
     <title>Small_car</title>
     <script type="text/javascript" src="three.js"></script>
+    <script type="text/javascript" src="TrackballControls.js"></script>
     <script type="text/javascript">
+        var renderer,scene;
+        var controls,camera,light,ambientlight,plane;
         function init(){
             // render&scene
-            var renderer = new THREE.WebGLRenderer({
+            renderer = new THREE.WebGLRenderer({
                 canvas:document.getElementById('mainCanvas')
             });
             renderer.setClearColor(0x000000);
             renderer.shadowMapSoft = true;
             renderer.shadowMapEnabled = true;
-            var scene = new THREE.Scene();
+            scene = new THREE.Scene();
             // camera
-            var camera = new THREE.OrthographicCamera(-20,20,20,-20,1,50);
+            camera = new THREE.OrthographicCamera(-20,20,20,-20,1,50);
             camera.position.set(15,7,15);
             camera.lookAt(new THREE.Vector3(0,0,0));
             scene.add(camera);
+            //control
+            controls = new THREE.TrackballControls( camera );
+            controls.rotateSpeed = 1.0;
+            controls.zoomSpeed = 1.2;
+            controls.panSpeed = 0.8;
+            controls.noZoom = false;
+            controls.noPan = false;
+            controls.staticMoving = true;
+            controls.dynamicDampingFactor = 0.3;
+            controls.keys = [ 65, 83, 68 ];
+
+
             //light:
             /*
             var light = new THREE.DirectionalLight(0xffffff,0.6);
@@ -29,15 +44,15 @@
             light.position.set(-20,30,20);
             //light.target = Vector3(0,0,0);
             */
-            var light = new THREE.PointLight(0xffffff,1,100,2);
+            light = new THREE.PointLight(0xffffff,1,100,2);
             light.position.set(-20,40,20);
             light.castShadow = true;
             scene.add(light);
 
-            var ambientlight = new THREE.AmbientLight(0xffffff,0.3);
+            ambientlight = new THREE.AmbientLight(0xffffff,0.3);
             scene.add(ambientlight);
             //plane:
-            var plane = new THREE.Mesh(new THREE.PlaneGeometry(50,50),
+            plane = new THREE.Mesh(new THREE.PlaneGeometry(50,50),
                 new THREE.MeshLambertMaterial({
                     map: THREE.ImageUtils.loadTexture('2.jpg',{},function(){
                         renderer.render(scene,camera);
@@ -87,9 +102,14 @@
             scene.add(carWheel3);
             scene.add(carWheel4);
         }
+        function animate() {
+            requestAnimationFrame( animate );
+            controls.update();
+            renderer.render(scene,camera);
+        }
     </script>
 </head>
-<body onload="init()">
+<body onload="init(),animate()">
     <canvas id="mainCanvas" width="400px" height="300px"></canvas>
 </body>
 </html>
