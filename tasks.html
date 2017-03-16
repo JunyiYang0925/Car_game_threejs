@@ -8,6 +8,7 @@
     <script type="text/javascript">
         var renderer,scene;
         var controls,camera,light,ambientlight,plane;
+        var car;
         function init(){
             // render&scene
             renderer = new THREE.WebGLRenderer({
@@ -72,9 +73,11 @@
             var materialWheel = new THREE.MeshLambertMaterial({
                 color: 0x000000
             });
-            drawCar(scene,materialBase,materialWheel,20);
-            renderer.render(scene,camera);
+            id= drawCar(scene,materialBase,materialWheel,20);
 
+            document.addEventListener('keydown',keyboarddown,false);
+
+            renderer.render(scene,camera);
         }
         function drawCar(scene,materialBase,materialWheel,length){
             var carBase = new THREE.Mesh(new THREE.CubeGeometry(length,length/2,length/2,5,5,5),materialBase);
@@ -82,10 +85,22 @@
             var carWheel2 = new THREE.Mesh(new THREE.TorusGeometry(length/12,length/32,16,100,Math.PI*2),materialWheel);
             var carWheel3 = new THREE.Mesh(new THREE.TorusGeometry(length/12,length/32,16,100,Math.PI*2),materialWheel);
             var carWheel4 = new THREE.Mesh(new THREE.TorusGeometry(length/12,length/32,16,100,Math.PI*2),materialWheel);
+            var singleGeometry = new THREE.Geometry();
             carWheel1.position.set(-length/4,-length/4,length/4);
             carWheel2.position.set(length/4,-length/4,-length/4);
             carWheel3.position.set(-length/4,-length/4,-length/4);
             carWheel4.position.set(length/4,-length/4,length/4);
+            carBase.updateMatrix();
+            carWheel1.updateMatrix();
+            carWheel2.updateMatrix();
+            carWheel3.updateMatrix();
+            carWheel4.updateMatrix();
+            singleGeometry.merge(carBase.geometry,carBase.matrix);
+            singleGeometry.merge(carWheel1.geometry,carWheel1.matrix);
+            singleGeometry.merge(carWheel2.geometry,carWheel2.matrix);
+            singleGeometry.merge(carWheel3.geometry,carWheel3.matrix);
+            singleGeometry.merge(carWheel4.geometry,carWheel4.matrix);
+            car = new THREE.Mesh(singleGeometry);
             carBase.castShadow=true;
             carWheel1.castShadow=true;
             carWheel2.castShadow=true;
@@ -96,16 +111,35 @@
             carWheel2.receiveShadow=true;
             carWheel3.receiveShadow=true;
             carWheel4.receiveShadow=true;
-            scene.add(carBase);
-            scene.add(carWheel1);
-            scene.add(carWheel2);
-            scene.add(carWheel3);
-            scene.add(carWheel4);
+            scene.add(car);
+            //scene.add(carBase);
+            //scene.add(carWheel1);
+            //scene.add(carWheel2);
+            //scene.add(carWheel3);
+            //scene.add(carWheel4);
         }
         function animate() {
             requestAnimationFrame( animate );
             controls.update();
             renderer.render(scene,camera);
+        }
+        function keyboarddown(){
+            var speed = 1;
+            var rotateSpeed = Math.PI/30;
+            if (event.keyCode == 87){ //w
+                car.translateX(-speed);
+            }
+            else if (event.keyCode ==83){ //s
+                car.translateX(speed);
+            }
+            else if (event.keyCode ==65){
+                car.rotation.y += rotateSpeed;
+                car.translateX(-speed);
+            }
+            else if (event.keyCode ==68){
+                car.rotation.y -= rotateSpeed;
+                car.translateX(-speed);
+            }
         }
     </script>
 </head>
