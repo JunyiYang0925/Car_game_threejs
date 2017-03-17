@@ -1,0 +1,48 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <title>shadow&light</title>
+    <script type="text/javascript" src="three.js"></script>
+    <script type="text/javascript">
+        function init(){
+            var renderer = new THREE.WebGLRenderer({
+                canvas: document.getElementById('mainCanvas')
+            });
+            renderer.setClearColor(0x000000);
+            renderer.shadowMapEnabled = true;
+            renderer.shadowMapSoft = true;
+            var scene = new THREE.Scene();
+            var camera = new THREE.OrthographicCamera(-20,20,20,-20,1,100);
+            camera.position.set(10,10,10);
+            camera.lookAt(new THREE.Vector3(0,0,0));
+            scene.add(camera);
+            var light = new THREE.PointLight(0xffffff,1,100);
+            light.position.set(-20,50,20);
+            light.castShadow = true;
+            scene.add(light);
+            light.shadowCameraVisible = true;
+            var material = new THREE.MeshLambertMaterial({
+                color:0xffffff
+            });
+            var cube = new THREE.Mesh(new THREE.CubeGeometry(10,10,10),
+                    material
+            );
+            cube.castShadow=true;
+            scene.add(cube);
+
+            var plane = new THREE.Mesh(new THREE.PlaneGeometry(50,50),
+                    new THREE.MeshLambertMaterial({color:0xffffff}));
+            plane.position.y= -5;
+            plane.rotation.x= -Math.PI/2;
+            plane.receiveShadow=true;
+            scene.add(plane);
+            renderer.render(scene,camera);
+        }
+    </script>
+</head>
+<body onload="init()">
+    <canvas id="mainCanvas" width="400px" height="300px"></canvas>
+
+</body>
+</html>
