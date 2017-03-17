@@ -9,6 +9,7 @@
         var renderer,scene;
         var controls,camera,light,ambientlight,plane;
         var car;
+        var keymap={};
         function init(){
             // render&scene
             renderer = new THREE.WebGLRenderer({
@@ -76,6 +77,7 @@
             id= drawCar(scene,materialBase,materialWheel,20);
 
             document.addEventListener('keydown',keyboarddown,false);
+            document.addEventListener('keyup',keyboardup,false);
 
             renderer.render(scene,camera);
         }
@@ -120,25 +122,40 @@
         }
         function animate() {
             requestAnimationFrame( animate );
+            movement();
             controls.update();
             renderer.render(scene,camera);
         }
         function keyboarddown(){
-            var speed = 1;
-            var rotateSpeed = Math.PI/30;
-            if (event.keyCode == 87){ //w
+            keymap[event.keyCode]=true;
+        }
+        function keyboardup() {
+            keymap[event.keyCode] = false;
+        }
+        function movement() {
+            var speed = 0.5;
+            var rotateSpeed = Math.PI/60;
+            if (keymap[87]== true && keymap[65]==true){
                 car.translateX(-speed);
-            }
-            else if (event.keyCode ==83){ //s
-                car.translateX(speed);
-            }
-            else if (event.keyCode ==65){
                 car.rotation.y += rotateSpeed;
+            }
+            else if (keymap[87]== true && keymap[68]==true){
+                car.translateX(-speed);
+                car.rotation.y -= rotateSpeed;
+            }
+            else if (keymap[83]== true && keymap[65]==true){
+                car.translateX(speed);
+                car.rotation.y -= rotateSpeed;
+            }
+            else if (keymap[83]== true && keymap[68]==true){
+                car.translateX(speed);
+                car.rotation.y += rotateSpeed;
+            }
+            else if (keymap[87]== true){
                 car.translateX(-speed);
             }
-            else if (event.keyCode ==68){
-                car.rotation.y -= rotateSpeed;
-                car.translateX(-speed);
+            else if (keymap[83]==true){
+                car.translateX(speed);
             }
         }
     </script>
