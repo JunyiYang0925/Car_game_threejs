@@ -14,9 +14,7 @@
             renderer.shadowMapSoft = true;
             var scene = new THREE.Scene();
             var camera = new THREE.OrthographicCamera(-20,20,20,-20,1,100);
-            camera.position.set(10,10,10);
-            camera.lookAt(new THREE.Vector3(0,0,0));
-            scene.add(camera);
+
             var light = new THREE.PointLight(0xffffff,1,100);
             light.position.set(-20,50,20);
             light.castShadow = true;
@@ -30,7 +28,13 @@
             );
             cube.castShadow=true;
             scene.add(cube);
-
+            var carPosition = new THREE.Vector3();
+            carPosition.setFromMatrixPosition(cube.matrixWorld);
+            camera.position.x = carPosition.x+10;
+            camera.position.y = carPosition.y+10;
+            camera.position.z = carPosition.z;
+            camera.lookAt(carPosition);
+            scene.add(camera);
             var plane = new THREE.Mesh(new THREE.PlaneGeometry(50,50),
                     new THREE.MeshLambertMaterial({color:0xffffff}));
             plane.position.y= -5;
