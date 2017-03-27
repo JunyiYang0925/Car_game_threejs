@@ -3,6 +3,22 @@
 <head>
     <meta charset="UTF-8">
     <title>Small_car</title>
+    <style type="text/css">
+        body {
+            border: 0;
+            margin: 0;
+            padding: 0;
+        }
+
+        #notes {
+            position: absolute;
+            padding: 20px;
+            width: 200px;
+            top: 100px;
+            left: 1200px;
+        }
+    </style>
+
     <script type="text/javascript" src="./js/three.js"></script>
     <script type="text/javascript" src="./js/TrackballControls.js"></script>
     <script type="text/javascript" src="./js/MTLLoader.js"></script>
@@ -10,11 +26,13 @@
     <script type="text/javascript" src="./js/stats.min.js"></script>
     <script type="text/javascript" src="./js/physi.js"></script>
     <script type="text/javascript">
+        var scoreElement = document.getElementById("score");
         var renderer,scene,stat;
-        var controls,camera,light,ambientlight,plane,car;
+        var score = 0;
+        var controls,camera,light,ambientlight,plane,car,transparentBox,ballMesh;
         var keymap={};
         Physijs.scripts.worker = './js/physijs_worker.js';
-        Physijs.scripts.ammo = './js/ammo.js';
+        Physijs.scripts.ammo = 'ammo.js';
         function init(){
             //stats
             stat = new Stats();
@@ -57,12 +75,19 @@
                 color:0x0000ff
             });
             var ballGeometry = new THREE.SphereGeometry(3,8,6);
-            var ballMesh = new Physijs.SphereMesh(ballGeometry,ballMaterial);
+            ballMesh = new Physijs.SphereMesh(ballGeometry,ballMaterial,0.1);
             ballMesh.__dirtyPosition= true;
             ballMesh.__dirtyRotation= true;
-            ballMesh.position.set(0,4,0);
-            ballMesh.addEventListener('collision',function(){
-                alert('aaa');
+            ballMesh.position.set(10,4,10);
+            ballMesh.addEventListener('collision',function(object, linearVelocity, angularVelocity){
+                if (this.collisioned || object.name != 'transparentBox'){
+                    return;
+                }
+                else {
+                    scene.remove(ballMesh);
+                    score += 1;
+                    scoreElement.innerHTML = score;
+                }
             });
             scene.add(ballMesh);
 
@@ -73,20 +98,33 @@
             scene.add(light);
 
             //ambient light
-            ambientlight = new THREE.AmbientLight(0xffffff,0.3);
+            ambientlight = new THREE.AmbientLight(0xffffff,0.7);
             scene.add(ambientlight);
 
             //plane:
-            plane = new THREE.Mesh(new THREE.PlaneGeometry(100,100),
-                new THREE.MeshLambertMaterial({
-                    map: THREE.ImageUtils.loadTexture('./img/2.jpg',{},function(){
-                        renderer.render(scene,camera);
-                    })
-                }));
-            plane.rotation.x= -Math.PI/2;
+            var material = Physijs.createMaterial(new THREE.MeshLambertMaterial({
+                map: THREE.ImageUtils.loadTexture('./img/2.jpg',{},function(){
+                    renderer.render(scene,camera);
+                })
+            }),0.8,0,2);
+            plane = new Physijs.BoxMesh(new THREE.BoxGeometry(10000, 1, 100),material,0);
+            //plane.rotation.x= -Math.PI/2;
             plane.position.y= 0;
             plane.receiveShadow=true;
             scene.add(plane);
+
+            //transparent box for detecting collision of loaded car.
+            var boxMaterial = new THREE.MeshLambertMaterial({
+                transparent :true,
+                opacity : 1
+            });
+            var boxGeometry = new THREE.CubeGeometry(30,5,8);
+            transparentBox = new Physijs.BoxMesh(boxGeometry,boxMaterial,0.1);
+            transparentBox.position.set(0,2.5,0);
+            transparentBox.name = 'transparentBox'
+            transparentBox.__dirtyPosition = true;
+            transparentBox.__dirtyRotation = true;
+            scene.add(transparentBox);
 
             //car loaded from obj file
             var mtlLoader = new THREE.MTLLoader();
@@ -120,7 +158,7 @@
             stat.begin();
             requestAnimationFrame( animate );
             movement();
-
+            //transparentBox.position.setFromMatrixPosition(car.matrixWorld);
             //controls.update();
             renderer.render(scene,camera);
             scene.simulate();
@@ -130,37 +168,59 @@
             keymap[event.keyCode]=true;
         }
         function keyboardup() {
-            keymap[event.keyCode] = false;
+            keymap[event.keyCode]=false;
         }
         function movement() {
-            var speed = 0.5;
-            var rotateSpeed = Math.PI/60;
+            var speed = 1;
+            var rotateSpeed = Math.PI/200;
             if (keymap[87]== true && keymap[65]==true){
                 car.translateZ(-speed);
                 car.rotation.y += rotateSpeed;
+                transparentBox.translateX(-speed);
+                transparentBox.rotation.y += rotateSpeed;
+                transparentBox.__dirtyPosition = true;
+                transparentBox.__dirtyRotation = true;
                 chaseCamera();
             }
             else if (keymap[87]== true && keymap[68]==true){
                 car.translateZ(-speed);
                 car.rotation.y -= rotateSpeed;
+                transparentBox.translateX(-speed);
+                transparentBox.rotation.y -= rotateSpeed;
+                transparentBox.__dirtyPosition = true;
+                transparentBox.__dirtyRotation = true;
                 chaseCamera();
             }
             else if (keymap[83]== true && keymap[65]==true){
                 car.translateZ(speed);
                 car.rotation.y -= rotateSpeed;
+                transparentBox.translateX(speed);
+                transparentBox.rotation.y -= rotateSpeed;
+                transparentBox.__dirtyPosition = true;
+                transparentBox.__dirtyRotation = true;
                 chaseCamera();
             }
             else if (keymap[83]== true && keymap[68]==true){
                 car.translateZ(speed);
                 car.rotation.y += rotateSpeed;
+                transparentBox.translateX(speed);
+                transparentBox.rotation.y += rotateSpeed;
+                transparentBox.__dirtyPosition = true;
+                transparentBox.__dirtyRotation = true;
                 chaseCamera();
             }
             else if (keymap[87]== true){
                 car.translateZ(-speed);
+                transparentBox.translateX(-speed);
+                transparentBox.__dirtyPosition = true;
+                transparentBox.__dirtyRotation = true;
                 chaseCamera();
             }
             else if (keymap[83]==true){
                 car.translateZ(speed);
+                transparentBox.translateX(speed);
+                transparentBox.__dirtyPosition = true;
+                transparentBox.__dirtyRotation = true;
                 chaseCamera();
             }
         }
@@ -179,5 +239,12 @@
 </head>
 <body onload="init(),animate()">
     <canvas id="mainCanvas" width="1200px" height="900px"></canvas>
+    <div id="notes">
+        <p>1. WASD to control the car </p>
+        <p>2. Hit the ball score plus one, hit the cube score minus one</p>
+        <p>3. You have only 1 minute</p>
+        <p>Score: <span id="score">0</span></p>
+        <p>The game has began for: <span id="time">0</span></p>
+    </div>
 </body>
 </html>

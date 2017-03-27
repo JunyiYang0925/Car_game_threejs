@@ -1,0 +1,13 @@
+body {
+    border: 0;
+    margin: 0;
+    padding: 0;
+}
+
+#notes {
+    position: absolute;
+    padding: 20px;
+    width: 200px;
+    top: 100px;
+    left: 1200px;
+}
