@@ -22,6 +22,7 @@ function init(){
     renderer.setClearColor(0x000000);
     renderer.shadowMapSoft = true;
     renderer.shadowMapEnabled = true;
+    setTimeout("timeUp()",1000*10);
     scene = new Physijs.Scene();
     generateObstacle();
     initLight();
@@ -175,4 +176,9 @@ function initCar() {
             scene.add(object);
         })
     });
+}
+function timeUp() {
+    if(!alert('time is up, click ok to try again.')) {
+        window.location.reload();
+    }
 }
