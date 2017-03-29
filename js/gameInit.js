@@ -2,7 +2,7 @@ var scoreElement = document.getElementById("score");
 var timeElement = document.getElementById("time");
 var startGameTime;
 var renderer,scene,stat,camera,light,ambientlight,plane;
-var car,transparentBox,ballMesh;
+var car,transparentBox,ballMesh,cubeMesh,wallGeometry,wallMaterial,wallLeft,wallRight;
 var score = 0;
 var keymap={};
 Physijs.scripts.worker = './js/physijs_worker.js';
@@ -104,7 +104,7 @@ function initPlane() {
 
     //plane:
     var material = Physijs.createMaterial(new THREE.MeshLambertMaterial({
-        map: THREE.ImageUtils.loadTexture('./img/2.jpg',{},function(){
+        map: THREE.ImageUtils.loadTexture('./img/ground.jpg',{},function(){
             renderer.render(scene,camera);
         })
     }),0.8,0,2);
@@ -118,7 +118,7 @@ function initCar() {
     //transparent box for detecting collision of loaded car.
     var boxMaterial = new THREE.MeshLambertMaterial({
         transparent :true,
-        opacity : 1
+        opacity : 0
     });
     var boxGeometry = new THREE.CubeGeometry(25,5,10);
     transparentBox = new Physijs.BoxMesh(boxGeometry,boxMaterial,0.1);
@@ -152,6 +152,32 @@ function initCar() {
         })
     });
 }
+function initWall() {
+    wallGeometry = new THREE.CubeGeometry(2500,3,1);
+    wallMaterial = new THREE.MeshLambertMaterial({
+        map: THREE.ImageUtils.loadTexture('./img/wall.jpg',{},function(){
+            renderer.render(scene,camera);
+        })
+    });
+    wallLeft = new Physijs.BoxMesh(wallGeometry,wallMaterial);
+    wallLeft.position.set(-500,3,48);
+    wallRight = new Physijs.BoxMesh(wallGeometry,wallMaterial);
+    wallRight.position.set(-500,3,-48);
+    wallLeft.addEventListener('collision', hitWall);
+    wallRight.addEventListener('collision', hitWall);
+    function hitWall(object, linearVelocity, angularVelocity) {
+        if (this.collisioned || object.name != 'transparentBox'){
+            return null;
+        }
+        else {
+            if (!alert('GAME OVER, click ok to try again.')) {
+                window.location.reload();
+            }
+        }
+    }
+    scene.add(wallLeft);
+    scene.add(wallRight);
+}
 function timeUp() {
     if(!alert('time is up, click ok to try again.')) {
         window.location.reload();
@@ -176,6 +202,7 @@ function init(){
     generateObstacle();
     initLight();
     initPlane();
+    initWall();
     initCar();
     keymapControl();
     chaseCamera();
