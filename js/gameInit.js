@@ -1,46 +1,19 @@
 var scoreElement = document.getElementById("score");
 var timeElement = document.getElementById("time");
-var startTime = Date.now();
+var startGameTime;
 var renderer,scene,stat,camera,light,ambientlight,plane;
 var car,transparentBox,ballMesh;
 var score = 0;
 var keymap={};
 Physijs.scripts.worker = './js/physijs_worker.js';
 Physijs.scripts.ammo = 'ammo.js';
-function init(){
-    //stats
-    stat = new Stats();
-    stat.domElement.style.position = 'absolute';
-    stat.domElement.style.right = '0px';
-    stat.domElement.style.top = '0px';
-    document.body.appendChild(stat.domElement);
-
-    // render&scene
-    renderer = new THREE.WebGLRenderer({
-        canvas:document.getElementById('mainCanvas')
-    });
-    renderer.setClearColor(0x000000);
-    renderer.shadowMapSoft = true;
-    renderer.shadowMapEnabled = true;
-    setTimeout("timeUp()",1000*10);
-    scene = new Physijs.Scene();
-    generateObstacle();
-    initLight();
-    initPlane();
-    initCar();
-    keymapControl();
-    chaseCamera();
-    render();
-
-
-}
 function render() {
     stat.begin();
     requestAnimationFrame( render );
     movement();
     chaseCamera();
     //transparentBox.position.setFromMatrixPosition(car.matrixWorld);
-    timeElement.innerHTML = ((Date.now() - startTime) / 1000).toFixed(2);
+    timeElement.innerHTML = ((Date.now() - startGameTime) / 1000).toFixed(2);
     renderer.render(scene,camera);
     scene.simulate();
     stat.end();
@@ -57,7 +30,7 @@ function keymapControl() {
 }
 
 function movement() {
-    var speed = 1;
+    var speed = 0.8;
     var rotateSpeed = Math.PI/200;
     if (keymap[87]== true && keymap[65]==true){
         car.translateZ(-speed);
@@ -135,7 +108,7 @@ function initPlane() {
             renderer.render(scene,camera);
         })
     }),0.8,0,2);
-    plane = new Physijs.BoxMesh(new THREE.BoxGeometry(10000, 1, 100),material,0);
+    plane = new Physijs.BoxMesh(new THREE.BoxGeometry(5000, 1, 100),material,0);
     //plane.rotation.x= -Math.PI/2;
     plane.position.y= 0;
     plane.receiveShadow=true;
@@ -147,7 +120,7 @@ function initCar() {
         transparent :true,
         opacity : 1
     });
-    var boxGeometry = new THREE.CubeGeometry(30,5,8);
+    var boxGeometry = new THREE.CubeGeometry(25,5,10);
     transparentBox = new Physijs.BoxMesh(boxGeometry,boxMaterial,0.1);
     transparentBox.position.set(0,2.5,0);
     transparentBox.name = 'transparentBox';
@@ -173,6 +146,8 @@ function initCar() {
             object.scale.y = 0.006;
             object.scale.z = 0.006;
             object.matrixWorldNeedsUpdate = true;
+            startGameTime = Date.now();
+            setTimeout("timeUp()",1000*30);
             scene.add(object);
         })
     });
@@ -181,4 +156,30 @@ function timeUp() {
     if(!alert('time is up, click ok to try again.')) {
         window.location.reload();
     }
+}
+function init(){
+    //stats
+    stat = new Stats();
+    stat.domElement.style.position = 'absolute';
+    stat.domElement.style.right = '0px';
+    stat.domElement.style.top = '0px';
+    document.body.appendChild(stat.domElement);
+
+    // render&scene
+    renderer = new THREE.WebGLRenderer({
+        canvas:document.getElementById('mainCanvas')
+    });
+    renderer.setClearColor(0x000000);
+    renderer.shadowMapSoft = true;
+    renderer.shadowMapEnabled = true;
+    scene = new Physijs.Scene();
+    generateObstacle();
+    initLight();
+    initPlane();
+    initCar();
+    keymapControl();
+    chaseCamera();
+    render();
+
+
 }
