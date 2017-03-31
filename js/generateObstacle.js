@@ -8,6 +8,7 @@ var cubeMaterial = new THREE.MeshLambertMaterial({
 var cubeGeometry = new THREE.CubeGeometry(4,4,4);
 function generateObstacle() {
     for(i=0;i<=16;i++){
+        //radomly generate cube or ball.
         switch (Math.round(Math.random())){
             case 0:
                 createBall();

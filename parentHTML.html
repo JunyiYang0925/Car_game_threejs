@@ -1,0 +1,30 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <title>Parent</title>
+    <style>
+        #iframe{
+            width: 1600px;
+            height: 1200px;
+        }
+    </style>
+    <script>
+        window.addEventListener('message',function(event){
+            var msg=event.data;
+            if (msg.messageType == 'SCORE') {
+                document.getElementById('scoreBoard').innerHTML = msg.score;
+            }
+            else if (msg.messageType == 'SAVE'){
+                document.getElementById('scoreBoard').innerHTML = msg.gameState.time;
+            }
+        },false);
+    </script>
+</head>
+<body>
+    <iframe id="iframe" src="gamefinal.html"></iframe>
+    <div>
+        <p id="scoreBoard"></p>
+    </div>
+</body>
+</html>

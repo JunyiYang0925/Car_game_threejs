@@ -4,7 +4,7 @@ var startGameTime;
 var renderer,scene,stat,camera,light,ambientlight,plane;
 var car,transparentBox,ballMesh,cubeMesh,wallGeometry,wallMaterial,wallLeft,wallRight;
 var score = 0;
-var keymap={};
+var keymap={}; //record keyboard event.
 Physijs.scripts.worker = './js/physijs_worker.js';
 Physijs.scripts.ammo = 'ammo.js';
 function render() {
@@ -12,8 +12,7 @@ function render() {
     requestAnimationFrame( render );
     movement();
     chaseCamera();
-    //transparentBox.position.setFromMatrixPosition(car.matrixWorld);
-    timeElement.innerHTML = ((Date.now() - startGameTime) / 1000).toFixed(2);
+    timeElement.innerHTML = ((Date.now() - startGameTime) / 1000).toFixed(2); //time that the game has started.
     renderer.render(scene,camera);
     scene.simulate();
     stat.end();
@@ -37,6 +36,7 @@ function movement() {
         car.rotation.y += rotateSpeed;
         transparentBox.translateX(-speed);
         transparentBox.rotation.y += rotateSpeed;
+        //everytime if you want to update the position&rotation of the mesh build by physijs these two value should be set true.
         transparentBox.__dirtyPosition = true;
         transparentBox.__dirtyRotation = true;
     }
@@ -79,8 +79,6 @@ function movement() {
 }
 function chaseCamera(){
     camera = new THREE.PerspectiveCamera(45, 4/3,1,1000);
-    //var carPosition = new THREE.Vector3();
-    //var carPositionOffset = carPosition.applyMatrix4(car.matrixWorld);
     var carPositionOffset = new THREE.Vector3();
     carPositionOffset.setFromMatrixPosition(transparentBox.matrixWorld);
     camera.position.x = carPositionOffset.x+30;
@@ -109,13 +107,13 @@ function initPlane() {
         })
     }),0.8,0,2);
     plane = new Physijs.BoxMesh(new THREE.BoxGeometry(5000, 1, 100),material,0);
-    //plane.rotation.x= -Math.PI/2;
     plane.position.y= 0;
     plane.receiveShadow=true;
     scene.add(plane);
 }
 function initCar() {
-    //transparent box for detecting collision of loaded car.
+    //physijs can not detect external loaded model collision,
+    // so use a transparent box travel with the car model for detecting collision of loaded car.
     var boxMaterial = new THREE.MeshLambertMaterial({
         transparent :true,
         opacity : 0
@@ -178,7 +176,32 @@ function initWall() {
     scene.add(wallLeft);
     scene.add(wallRight);
 }
+/*
+function initAudio() {
+    audios = {
+        driving: '../audio/driving.mp3',
+        bgm:     '../audio/bgm.mp3',
+        crash:   '../audio/crash.mp3',
+        score:   '../audio/score.mp3'
+    };
+    for (var key in sounds) {
+        (function (key) {
+            audioLoader.load(audios[key], function (buffer) {
+                audios[key] = new THREE.PositionalAudio(listener);
+                audios[key].setBuffer(buffer);
+                audios[key].setRefDistance(10);
+            });
+        }(key))
+    }
+}
+*/
 function timeUp() {
+    //game will be use in iframe, so when game is over, send a msg containing score to parent.
+    var msg = {
+        "messageType": "SCORE",
+        "score": score
+    };
+    window.parent.postMessage(msg, "*");
     if(!alert('time is up, click ok to try again.')) {
         window.location.reload();
     }
@@ -199,6 +222,17 @@ function init(){
     renderer.shadowMapSoft = true;
     renderer.shadowMapEnabled = true;
     scene = new Physijs.Scene();
+    //save button clicked send a msg containing game state to parent.
+    document.getElementById('saveButton').onclick= function () {
+        var msg = {
+            "messageType": "SAVE",
+            "gameState": {
+                "time":timeElement.innerHTML,
+                "score": score
+            }
+        };
+        window.parent.postMessage(msg, "*");
+    };
     generateObstacle();
     initLight();
     initPlane();
@@ -207,6 +241,4 @@ function init(){
     keymapControl();
     chaseCamera();
     render();
-
-
 }
