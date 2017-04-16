@@ -202,9 +202,11 @@ function timeUp() {
         "score": score
     };
     window.parent.postMessage(msg, "*");
+    /*
     if(!alert('time is up, click ok to try again.')) {
         window.location.reload();
     }
+    */
 }
 function init(){
     //stats
@@ -233,6 +235,19 @@ function init(){
         };
         window.parent.postMessage(msg, "*");
     };
+    document.getElementById('loadButton').onclick= function(){
+        var msg = {
+            "messageType": "LOAD_REQUEST"
+        };
+        window.parent.postMessage(msg, "*");
+    };
+    window.addEventListener('message',function(event){
+        var msg = event.data;
+        if (msg.messageType=="LOAD"){
+            scoreElement.innerHTML = msg.gameState.score;
+        }
+    },false);
+
     generateObstacle();
     initLight();
     initPlane();
