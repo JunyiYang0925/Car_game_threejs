@@ -202,11 +202,9 @@ function timeUp() {
         "score": score
     };
     window.parent.postMessage(msg, "*");
-    /*
     if(!alert('time is up, click ok to try again.')) {
         window.location.reload();
     }
-    */
 }
 function init(){
     //stats
