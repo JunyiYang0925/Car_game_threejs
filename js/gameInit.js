@@ -246,6 +246,15 @@ function init(){
         }
     },false);
 
+    var message =  {
+      messageType: "SETTING",
+      options: {
+        "width": 1500,
+        "height": 900
+        }
+    };
+    window.parent.postMessage(message, "*");
+
     generateObstacle();
     initLight();
     initPlane();

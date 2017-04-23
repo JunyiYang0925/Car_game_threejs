@@ -31,6 +31,9 @@
                 };
                 iframeElement.contentWindow.postMessage(message,"*");
             }
+            else if (msg.messageType == 'SETTING'){
+                document.getElementById('scoreBoard').innerHTML = msg.options.width;            
+            }
         },false);
 
     </script>
