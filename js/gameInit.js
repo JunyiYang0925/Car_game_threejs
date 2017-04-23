@@ -249,8 +249,8 @@ function init(){
     var message =  {
       messageType: "SETTING",
       options: {
-        "width": 1500,
-        "height": 900
+        "width": 1200,
+        "height": 750
         }
     };
     window.parent.postMessage(message, "*");
